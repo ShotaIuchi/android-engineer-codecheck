@@ -1,30 +1,7 @@
 package jp.co.yumemi.android.codeCheck.github
 
 import jp.co.yumemi.android.codeCheck.data.models.GitHubRepoModel
-import jp.co.yumemi.android.codeCheck.data.models.Owner
 import kotlin.test.assertEquals
-
-/**
- * テスト用GitHubRepoModel作成
- * @param itemNumber 個数
- * @return テスト用GitHubRepoModel配列
- */
-fun createGitHubRepoModel(itemNumber: Int): List<GitHubRepoModel> = buildList {
-    for (index in 1..itemNumber) {
-        add(
-            GitHubRepoModel(
-                "ACCOUNT/REPOSITORY$index",
-                Owner("https://example.com/avatar.jpg$index"),
-                "LANGUAGE$index",
-                index.toLong(),
-                index.toLong(),
-                index.toLong(),
-                index.toLong(),
-                "https://github.com/yumemi-inc$index"
-            )
-        )
-    }
-}
 
 /**
  * テスト用GitHubRepoModelリストのアサート

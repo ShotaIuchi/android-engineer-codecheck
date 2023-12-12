@@ -3,11 +3,13 @@ package jp.co.yumemi.android.codeCheck.github
 import android.view.inputmethod.EditorInfo
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import jp.co.yumemi.android.codeCheck.R
+import jp.co.yumemi.android.codeCheck.data.models.GitHubFileModel
 import jp.co.yumemi.android.codeCheck.data.models.GitHubRepoModel
 import jp.co.yumemi.android.codeCheck.data.models.Owner
 import jp.co.yumemi.android.codeCheck.data.repository.GitHubRepository
 import jp.co.yumemi.android.codeCheck.data.repository.ResourceRepository
 import jp.co.yumemi.android.codeCheck.ui.GithubRepoViewModel
+import jp.co.yumemi.android.codeCheck.ui.debug.createGitHubRepoModel
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -36,10 +38,15 @@ class TestResourceRepositoryImpl : ResourceRepository {
         "${id}${formatArgs.joinToString("")}"
 }
 
-class TestGitHubRepository(private val resultList: List<GitHubRepoModel>) : GitHubRepository {
-    override suspend fun searchRepository(inputText: String): List<GitHubRepoModel> {
-        return resultList
-    }
+class TestGitHubRepository(
+    private val repoModelList: List<GitHubRepoModel>,
+    private val fileModelList: List<GitHubFileModel>,
+) : GitHubRepository {
+    override suspend fun searchRepository(inputText: String): List<GitHubRepoModel> =
+        repoModelList
+
+    override suspend fun getContents(fullName: String, path: String): List<GitHubFileModel> =
+        fileModelList
 }
 
 class GitHubViewModelTest : KoinTest {
@@ -63,9 +70,12 @@ class GitHubViewModelTest : KoinTest {
     /**
      * APIコール結果を引数にKtorのMockEngineを作成
      * 正常系試験用
-     * @param resultList APIコール結果
+     * @param repoModelList APIコール結果
      */
-    private fun initKoin(resultList: List<GitHubRepoModel>) {
+    private fun initKoin(
+        repoModelList: List<GitHubRepoModel>,
+        fileModelList: List<GitHubFileModel>
+    ) {
         if (GlobalContext.getOrNull() != null) {
             stopKoin()
         }
@@ -73,7 +83,7 @@ class GitHubViewModelTest : KoinTest {
             modules(
                 module {
                     single<ResourceRepository> { TestResourceRepositoryImpl() }
-                    single<GitHubRepository> { TestGitHubRepository(resultList) }
+                    single<GitHubRepository> { TestGitHubRepository(repoModelList, fileModelList) }
                     viewModel { GithubRepoViewModel(get(), get()) }
                 }
             )
@@ -83,23 +93,23 @@ class GitHubViewModelTest : KoinTest {
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     fun `searchRepository returns list of empty`() = runTest {
-        initKoin(buildList {})
+        initKoin(buildList {}, buildList {})
         val githubRepoViewModel by inject<GithubRepoViewModel>()
         githubRepoViewModel.onSearch("testQuery", EditorInfo.IME_ACTION_SEARCH)
         advanceUntilIdle()
         assertNotNull(githubRepoViewModel.repositoryList.value)
-        assertTrue(githubRepoViewModel.repositoryList.value!!.isEmpty())
+        assertTrue(githubRepoViewModel.repositoryList.value.isEmpty())
         stopKoin()
     }
 
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     fun `searchRepository returns list of single`() = runTest {
-        initKoin(createGitHubRepoModel(1))
+        initKoin(createGitHubRepoModel(1), buildList {})
         val githubRepoViewModel by inject<GithubRepoViewModel>()
         githubRepoViewModel.onSearch("testQuery", EditorInfo.IME_ACTION_SEARCH)
         advanceUntilIdle()
-        githubRepoViewModel.repositoryList.value?.let {
+        githubRepoViewModel.repositoryList.value.let {
             assertTrue(it.isNotEmpty())
             assertGitHubRepoModel(it)
         }
@@ -109,11 +119,11 @@ class GitHubViewModelTest : KoinTest {
     @Test
     @OptIn(ExperimentalCoroutinesApi::class)
     fun `searchRepository returns list of multiple`() = runTest {
-        initKoin(createGitHubRepoModel(3))
+        initKoin(createGitHubRepoModel(3), buildList {})
         val githubRepoViewModel by inject<GithubRepoViewModel>()
         githubRepoViewModel.onSearch("testQuery", EditorInfo.IME_ACTION_SEARCH)
         advanceUntilIdle()
-        githubRepoViewModel.repositoryList.value?.let {
+        githubRepoViewModel.repositoryList.value.let {
             assertTrue(it.isNotEmpty())
             assertGitHubRepoModel(it)
         }
@@ -122,7 +132,7 @@ class GitHubViewModelTest : KoinTest {
 
     @Test
     fun convertBindingData() {
-        initKoin(buildList {})
+        initKoin(buildList {}, buildList {})
         val githubRepoViewModel by inject<GithubRepoViewModel>()
         val dataBinding = githubRepoViewModel.convertBindingData(
             GitHubRepoModel(

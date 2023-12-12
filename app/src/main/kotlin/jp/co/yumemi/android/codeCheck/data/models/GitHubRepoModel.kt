@@ -11,23 +11,23 @@ data class GitHubRepoModelList(
 @Serializable
 data class GitHubRepoModel(
     @SerialName("full_name")
-    val name: String,
-    val owner: Owner,
-    val language: String?,
+    val name: String = "",
+    val owner: Owner = Owner(),
+    val language: String? = null,
     @SerialName("stargazers_count")
-    val stargazersCount: Long,
+    val stargazersCount: Long = 0,
     @SerialName("watchers_count")
-    val watchersCount: Long,
+    val watchersCount: Long = 0,
     @SerialName("forks_count")
-    val forksCount: Long,
+    val forksCount: Long = 0,
     @SerialName("open_issues_count")
-    val openIssuesCount: Long,
+    val openIssuesCount: Long = 0,
     @SerialName("html_url")
-    val htmlUrl: String
+    val htmlUrl: String = ""
 ) : java.io.Serializable
 
 @Serializable
 data class Owner(
     @SerialName("avatar_url")
-    val avatarUrl: String
+    val avatarUrl: String = ""
 ) : java.io.Serializable
