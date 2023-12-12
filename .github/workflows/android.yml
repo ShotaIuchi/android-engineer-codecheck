@@ -36,71 +36,60 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
-    - name: Chche Gradle Wrapper
+    - name: Cache Gradle dependencies
       uses: actions/cache@v2
       with:
-        path: ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Chche Gradle Dependencies
-      uses: actions/cache@v2
+    - name: Run Gradle Build
+      uses: gradle/gradle-build-action@v2
       with:
-        path: ~/.gradle/caches
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
+        arguments: assemble
 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Run Tests
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: test
+        continue-on-error: true
 
-    - name: Build with Gradle
-      run: ./gradlew assemble
-      # run: ./gradlew assembleRelease
-
-    ## test
-    - name: Test with Gradle
-      run: ./gradlew test
-
-    - name: Upload result test
+    - name: Upload Test Results
       uses: actions/upload-artifact@v3
       with:
-        name: test-result
+        name: test-results
         path: '**/build/reports/tests/**/*'
         if-no-files-found: warn
         retention-days: 14
 
-    ## lint
-    - name: Lint with Gradle
-      run: ./gradlew lint
-      continue-on-error: true
+    - name: Run Lint
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: lint
+        continue-on-error: true
 
-    - name: Upload result lint
+    - name: Upload Lint Results
       uses: actions/upload-artifact@v3
       with:
-        name: lint-result
+        name: lint-results
         path: '**/build/reports/lint-results-*'
         if-no-files-found: warn
         retention-days: 14
 
-    ## ktlint
-    - name: Install ktlint
-      run: |
-        curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.1/ktlint
-        chmod a+x ktlint
-        sudo mv ktlint /usr/local/bin/
+    - name: Run ktlint
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: ktlintCheck
+        continue-on-error: true
 
-    - name: Lint with ktlint
-      run: ./gradlew ktlintCheck
-      continue-on-error: true
-
-    - name: Upload result ktlint
+    - name: Upload ktlint Results
       uses: actions/upload-artifact@v3
       with:
-        name: ktlint-result
+        name: ktlint-results
         path: '**/build/reports/ktlint/**/*'
         if-no-files-found: warn
         retention-days: 14
