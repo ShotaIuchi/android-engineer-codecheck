@@ -40,8 +40,8 @@ class OneFragment : Fragment(R.layout.fragment_one) {
             .setOnEditorActionListener { editText, action, _ ->
                 if (action == EditorInfo.IME_ACTION_SEARCH) {
                     editText.text.toString().let {
-                        _viewModel.searchResults(it).apply {
-                            _adapter.submitList(this)
+                        _viewModel.searchResults(it).observe(viewLifecycleOwner) { result ->
+                            _adapter.submitList(result)
                         }
                     }
                     return@setOnEditorActionListener true
