@@ -4,10 +4,11 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'androidx.navigation.safeargs.kotlin'
+    id "io.gitlab.arturbosch.detekt" version "1.23.1"
 }
 
 android {
-    namespace 'jp.co.yumemi.android.code_check'
+    namespace 'jp.co.yumemi.android.codeCheck'
     compileSdk 31
 
     defaultConfig {
@@ -61,4 +62,54 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}
+
+// kotlin-gradle-plugin must be applied for configuration below to work
+// (see https://kotlinlang.org/docs/reference/using-gradle.html)
+
+configurations {
+  ktlint
+}
+
+dependencies {
+  ktlint("com.pinterest:ktlint:0.40.0") {
+    attributes {
+      attribute(Bundling.BUNDLING_ATTRIBUTE, getObjects().named(Bundling, Bundling.EXTERNAL))
+    }
+  }
+  // additional 3rd party ruleset(s) can be specified here
+  // just add them to the classpath (e.g. ktlint 'groupId:artifactId:version') and
+  // ktlint will pick them up
+}
+
+tasks.register("ktlintCheck", JavaExec) {
+  group = "verification"
+  description = "Check Kotlin code style."
+  classpath = configurations.ktlint
+  mainClass = "com.pinterest.ktlint.Main"
+  // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+  args "--android", "--reporter=plain", "--color", "--reporter=checkstyle,output=${project.buildDir}/reports/ktlint/results.xml",
+          "src/**/*.kt", "**.kts", "!**/build/**"
+}
+
+tasks.named("check") {
+  dependsOn tasks.named("ktlintCheck")
+}
+
+tasks.register("ktlintFormat", JavaExec) {
+  group = "formatting"
+  description = "Fix Kotlin code style deviations."
+  classpath = configurations.ktlint
+  mainClass = "com.pinterest.ktlint.Main"
+  jvmArgs "--add-opens=java.base/java.lang=ALL-UNNAMED"
+  // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
+  args "--android", "--reporter=plain", "--color", "--reporter=checkstyle",
+          "-F", "src/**/*.kt", "**.kts", "!**/build/**"
+}
+
+// dotkit
+// https://detekt.dev/docs/gettingstarted/gradle
+detekt {
+    toolVersion = "1.23.1"
+    config.setFrom("../config/detekt/detekt.yml")
 }

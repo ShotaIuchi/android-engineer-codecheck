@@ -1,0 +1,14 @@
+## visual studio code
+## - REST Client
+## - https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+## https://docs.github.com/ja/rest/overview/media-types?apiVersion=2022-11-28
+## application/vnd.github.v3+jsonのv3は廃止されている
+
+### 旧仕様
+GET https://api.github.com/search/repositories?q=hpuga
+Accept: application/vnd.github.v3+json
+
+### 新仕様
+GET https://api.github.com/search/repositories?q=hpuga
+Accept: application/vnd.github+json
