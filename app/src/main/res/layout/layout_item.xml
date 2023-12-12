@@ -6,7 +6,7 @@
     <data>
         <variable
             name="repository"
-            type="jp.co.yumemi.android.codeCheck.data.models.GitHubRepository" />
+            type="jp.co.yumemi.android.codeCheck.data.models.GitHubRepoModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

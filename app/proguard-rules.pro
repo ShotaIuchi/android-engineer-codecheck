@@ -20,4 +20,11 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep public class jp.co.yumemi.android.codeCheck.data.models.GitHubRepository { *; }
+-keep class jp.co.yumemi.android.codeCheck.data.models.* { *; }
+
+# io.ktor:ktor-client-logging内部で利用するorg.slf4j
+-assumenosideeffects class org.slf4j.Logger {
+    public void trace(...);
+    public void debug(...);
+}
+-dontwarn org.slf4j.**
