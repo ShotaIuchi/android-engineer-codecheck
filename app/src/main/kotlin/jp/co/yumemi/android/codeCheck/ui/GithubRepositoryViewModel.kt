@@ -3,7 +3,6 @@
  */
 package jp.co.yumemi.android.codeCheck.ui
 
-import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,8 +17,8 @@ import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
 import java.util.Date
 import jp.co.yumemi.android.codeCheck.R
+import jp.co.yumemi.android.codeCheck.data.models.GitHubRepository
 import jp.co.yumemi.android.codeCheck.data.repository.ResourceRepository
-import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
 
 /**
@@ -103,14 +102,3 @@ class GithubRepositoryFactory(private val resourceRepository: ResourceRepository
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-
-@Parcelize
-data class GitHubRepository(
-    val name: String,
-    val ownerIconUrl: String,
-    val language: String,
-    val stargazersCount: Long,
-    val watchersCount: Long,
-    val forksCount: Long,
-    val openIssuesCount: Long,
-) : Parcelable
