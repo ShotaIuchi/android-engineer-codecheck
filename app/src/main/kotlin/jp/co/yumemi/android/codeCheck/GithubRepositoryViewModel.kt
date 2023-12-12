@@ -21,14 +21,21 @@ import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
 
 /**
- * TwoFragment で使う
+ * GitHubリポジトリデータ用ViewModel
+ * 利用箇所：
+ *  @see SearchRepositoryFragment
+ *  @see DetailRepositoryFragment
  */
-class OneViewModel(
+class GithubRepositoryViewModel(
     val context: Context
 ) : ViewModel() {
 
-    // 検索結果
-    fun searchResults(inputText: String): LiveData<List<Item>> = liveData {
+    /**
+     * {inputText}を入力にGitHubからリポジトリを検索＆取得する
+     * @param inputText 検索文字列
+     * @return GitHubから取得したリポジトリ一覧
+     */
+    fun searchResults(inputText: String): LiveData<List<GitHubRepository>> = liveData {
         val client = HttpClient(Android)
 
         val response: HttpResponse = client.get("https://api.github.com/search/repositories") {
@@ -40,11 +47,9 @@ class OneViewModel(
 
         val jsonItems = jsonBody.optJSONArray("items")!!
 
-        val items = mutableListOf<Item>()
+        val items = mutableListOf<GitHubRepository>()
 
-        /**
-         * アイテムの個数分ループする
-         */
+        // 取得したデータを検索結果リストに詰める
         for (i in 0 until jsonItems.length()) {
             val jsonItem = jsonItems.optJSONObject(i)!!
             val name = jsonItem.optString("full_name")
@@ -56,7 +61,7 @@ class OneViewModel(
             val openIssuesCount = jsonItem.optLong("open_issues_count")
 
             items.add(
-                Item(
+                GitHubRepository(
                     name = name,
                     ownerIconUrl = ownerIconUrl,
                     language = context.getString(R.string.written_language, language),
@@ -74,7 +79,7 @@ class OneViewModel(
 }
 
 @Parcelize
-data class Item(
+data class GitHubRepository(
     val name: String,
     val ownerIconUrl: String,
     val language: String,
