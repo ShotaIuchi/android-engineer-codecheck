@@ -2,6 +2,7 @@ package jp.co.yumemi.android.codeCheck
 
 import android.util.Log
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -35,8 +36,12 @@ val coreModule = module {
 
     single<ResourceRepository> { ResourceRepositoryImpl(androidContext()) }
 
+    single<HttpClientEngine> { Android.create() }
+}
+
+val httpClientModule = module {
     single {
-        val client = HttpClient(Android) {
+        val client = HttpClient(get()) {
             // 例外ON
             expectSuccess = true
 
