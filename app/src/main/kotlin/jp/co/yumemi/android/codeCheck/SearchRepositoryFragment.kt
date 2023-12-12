@@ -16,22 +16,22 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import jp.co.yumemi.android.codeCheck.databinding.FragmentOneBinding
+import jp.co.yumemi.android.codeCheck.databinding.FragmentSearchRepositoryBinding
 
-class OneFragment : Fragment(R.layout.fragment_one) {
+class SearchRepositoryFragment : Fragment(R.layout.fragment_search_repository) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentOneBinding.bind(view)
+        val binding = FragmentSearchRepositoryBinding.bind(view)
 
-        val viewModel = OneViewModel(requireContext())
+        val viewModel = GithubRepositoryViewModel(requireContext())
 
         val layoutManager = LinearLayoutManager(requireContext())
         val dividerItemDecoration =
             DividerItemDecoration(requireContext(), layoutManager.orientation)
         val adapter = CustomAdapter(object : CustomAdapter.OnItemClickListener {
-            override fun itemClick(item: Item) {
+            override fun itemClick(item: GitHubRepository) {
                 gotoRepositoryFragment(item)
             }
         })
@@ -56,31 +56,31 @@ class OneFragment : Fragment(R.layout.fragment_one) {
         }
     }
 
-    fun gotoRepositoryFragment(item: Item) {
-        val action = OneFragmentDirections
-            .actionRepositoriesFragmentToRepositoryFragment(item = item)
-        findNavController().navigate(action)
+    fun gotoRepositoryFragment(item: GitHubRepository) {
+        val direction = SearchRepositoryFragmentDirections
+            .actionSearchRepositoryFragmentToDetailRepositoryFragment(item)
+        findNavController().navigate(direction)
     }
 }
 
-val diff_util = object : DiffUtil.ItemCallback<Item>() {
-    override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {
+val diff_util = object : DiffUtil.ItemCallback<GitHubRepository>() {
+    override fun areItemsTheSame(oldItem: GitHubRepository, newItem: GitHubRepository): Boolean {
         return oldItem.name == newItem.name
     }
 
-    override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean {
+    override fun areContentsTheSame(oldItem: GitHubRepository, newItem: GitHubRepository): Boolean {
         return oldItem == newItem
     }
 }
 
 class CustomAdapter(
     private val itemClickListener: OnItemClickListener,
-) : ListAdapter<Item, CustomAdapter.ViewHolder>(diff_util) {
+) : ListAdapter<GitHubRepository, CustomAdapter.ViewHolder>(diff_util) {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
 
     interface OnItemClickListener {
-        fun itemClick(item: Item)
+        fun itemClick(item: GitHubRepository)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

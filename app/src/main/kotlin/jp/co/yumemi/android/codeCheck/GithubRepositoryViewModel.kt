@@ -23,12 +23,12 @@ import org.json.JSONObject
 /**
  * TwoFragment で使う
  */
-class OneViewModel(
+class GithubRepositoryViewModel(
     val context: Context
 ) : ViewModel() {
 
     // 検索結果
-    fun searchResults(inputText: String): LiveData<List<Item>> = liveData {
+    fun searchResults(inputText: String): LiveData<List<GitHubRepository>> = liveData {
         val client = HttpClient(Android)
 
         val response: HttpResponse = client.get("https://api.github.com/search/repositories") {
@@ -40,7 +40,7 @@ class OneViewModel(
 
         val jsonItems = jsonBody.optJSONArray("items")!!
 
-        val items = mutableListOf<Item>()
+        val items = mutableListOf<GitHubRepository>()
 
         /**
          * アイテムの個数分ループする
@@ -56,7 +56,7 @@ class OneViewModel(
             val openIssuesCount = jsonItem.optLong("open_issues_count")
 
             items.add(
-                Item(
+                GitHubRepository(
                     name = name,
                     ownerIconUrl = ownerIconUrl,
                     language = context.getString(R.string.written_language, language),
@@ -74,7 +74,7 @@ class OneViewModel(
 }
 
 @Parcelize
-data class Item(
+data class GitHubRepository(
     val name: String,
     val ownerIconUrl: String,
     val language: String,
