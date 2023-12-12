@@ -19,7 +19,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "jp.co.yumemi.android.codeCheck.CustomTestRunner"
     }
 
     buildTypes {
@@ -41,6 +41,12 @@ android {
     }
     buildFeatures {
         dataBinding true
+    }
+
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+        }
     }
 }
 
@@ -71,8 +77,18 @@ dependencies {
     implementation 'io.ktor:ktor-client-logging:2.3.5'
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    testImplementation "androidx.arch.core:core-testing:2.2.0"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
+    testImplementation 'io.insert-koin:koin-test:3.5.0'
+    testImplementation 'io.insert-koin:koin-android-test:3.5.0'
+    testImplementation 'io.ktor:ktor-client-mock:2.3.5'
+    testImplementation "io.mockk:mockk-android:1.13.8"
+    testImplementation "io.mockk:mockk-agent:1.13.8"
+    testImplementation 'org.slf4j:slf4j-log4j12:1.7.25'
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
 }
 
 // kotlin-gradle-plugin must be applied for configuration below to work

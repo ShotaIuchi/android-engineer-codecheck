@@ -1,0 +1,16 @@
+{
+  "items": [
+    {
+      "full_name": "ACCOUNT/REPOSITORY1",
+      "owner": {
+        "avatar_url": "https://example.com/avatar.jpg1"
+      },
+      "html_url": "https://github.com/yumemi-inc1",
+      "stargazers_count": 1,
+      "watchers_count": 1,
+      "language": "LANGUAGE1",
+      "forks_count": 1,
+      "open_issues_count": 1
+    }
+  ]
+}

@@ -3,5 +3,6 @@
     <string name="error_network">ネットワークエラーが発生しました。接続を確認してください。</string>
     <string name="error_server">サーバーエラーが発生しました。しばらくしてから再試行してください。</string>
     <string name="error_timeout">リクエストがタイムアウトしました。もう一度試してください。</string>
+    <string name="error_converter">データ変換に失敗しました。もう一度試してください。</string>
     <string name="error_unexpected">予期しないエラーが発生しました。もう一度試してください。</string>
 </resources>

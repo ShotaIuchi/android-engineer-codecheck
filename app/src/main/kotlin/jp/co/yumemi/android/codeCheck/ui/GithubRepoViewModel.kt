@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ServerResponseException
+import io.ktor.serialization.ContentConvertException
 import io.ktor.utils.io.errors.IOException
 import java.util.Date
 import jp.co.yumemi.android.codeCheck.R
@@ -87,6 +88,10 @@ class GithubRepoViewModel(
             return@launch
         } catch (e: HttpRequestTimeoutException) {
             val message = resourceRepository.getString(R.string.error_timeout)
+            _searchException.postValue(Result.failure(RuntimeException(message, e)))
+            return@launch
+        } catch (e: ContentConvertException) {
+            val message = resourceRepository.getString(R.string.error_converter)
             _searchException.postValue(Result.failure(RuntimeException(message, e)))
             return@launch
         } catch (e: IOException) {
