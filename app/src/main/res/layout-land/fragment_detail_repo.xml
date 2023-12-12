@@ -6,13 +6,13 @@
     <data>
         <variable
             name="repository"
-            type="jp.co.yumemi.android.codeCheck.data.models.GitHubRepository" />
+            type="jp.co.yumemi.android.codeCheck.ui.models.DataBindingGitHubRepoModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.DetailRepositoryFragment">
+        tools:context=".ui.DetailRepoFragment">
 
         <ImageView
             android:id="@+id/ownerIconView"
@@ -20,25 +20,33 @@
             android:layout_height="0dp"
             android:layout_margin="@dimen/margin_medium"
             android:contentDescription="@null"
-            app:imageUrl='@{repository.ownerIconUrl}'
+            android:src="@drawable/jetbrains"
+            app:imageUrl='@{repository.ownerUrl}'
             app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/centerLeft"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_max="240dp"
-            tools:src="@drawable/jetbrains"/>
+            app:layout_constraintWidth_max="240dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/centerLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.4" />
 
         <TextView
             android:id="@+id/nameView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_medium"
+            android:layout_margin="@dimen/margin_medium"
             android:text='@{repository.name}'
             android:textColor="@color/textColor"
             android:textAppearance="?android:textAppearanceLarge"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ownerIconView"
+            app:layout_constraintStart_toStartOf="@+id/centerLeft"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="JetBrains/kotlin" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -46,7 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5" />
+            app:layout_constraintGuide_percent="0.7" />
 
         <TextView
             android:id="@+id/languageView"
@@ -57,7 +65,8 @@
             android:text='@{repository.language}'
             android:textColor="@color/textColor"
             android:textAppearance="?android:textAppearanceMedium"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/centerGuid"
+            app:layout_constraintStart_toStartOf="@+id/centerLeft"
             app:layout_constraintTop_toBottomOf="@id/nameView"
             tools:text="Written in Kotlin" />
 
@@ -67,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/margin_medium"
             android:layout_marginTop="@dimen/margin_small"
-            android:text='@{String.valueOf(repository.stargazersCount) + "stars"}'
+            android:text='@{repository.stargazersCount}'
             android:textAlignment="textEnd"
             android:textColor="@color/textColor"
             android:textAppearance="?android:textAppearanceSmall"
@@ -82,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/margin_medium"
             android:layout_marginTop="@dimen/margin_small"
-            android:text='@{String.valueOf(repository.watchersCount) + "watchers"}'
+            android:text='@{repository.watchersCount}'
             android:textAlignment="textEnd"
             android:textColor="@color/textColor"
             android:textAppearance="?android:textAppearanceSmall"
@@ -97,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/margin_medium"
             android:layout_marginTop="@dimen/margin_small"
-            android:text='@{String.valueOf(repository.forksCount) + "forks"}'
+            android:text='@{repository.forksCount}'
             android:textAlignment="textEnd"
             android:textColor="@color/textColor"
             android:textAppearance="?android:textAppearanceSmall"
@@ -112,7 +121,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/margin_medium"
             android:layout_marginTop="@dimen/margin_small"
-            android:text='@{String.valueOf(repository.openIssuesCount) + "open issues"}'
+            android:text='@{repository.openIssuesCount}'
             android:textAlignment="textEnd"
             android:textColor="@color/textColor"
             android:textAppearance="?android:textAppearanceSmall"

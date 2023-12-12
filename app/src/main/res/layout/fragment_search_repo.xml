@@ -6,13 +6,13 @@
     <data>
         <variable
             name="viewModel"
-            type="jp.co.yumemi.android.codeCheck.ui.GithubRepositoryViewModel" />
+            type="jp.co.yumemi.android.codeCheck.ui.GithubRepoViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.SearchRepositoryFragment">
+        tools:context=".ui.SearchRepoFragment">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/searchBar"
@@ -50,6 +50,7 @@
                     android:hint="@string/searchInputText_hint"
                     android:imeOptions="actionSearch|flagNoExtractUi"
                     android:inputType="text"
+                    android:onEditorAction="@{(v, actionId, event) -> viewModel.onSearch(v.text.toString(), actionId)}"
                     android:textAppearance="?android:textAppearanceSearchResultSubtitle" />
 
             </com.google.android.material.textfield.TextInputLayout>

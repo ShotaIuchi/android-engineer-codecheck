@@ -5,6 +5,7 @@ plugins {
     id 'kotlin-parcelize'
     id 'androidx.navigation.safeargs.kotlin'
     id "io.gitlab.arturbosch.detekt" version "1.23.1"
+    id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 android {
@@ -22,7 +23,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+        }
         release {
+            debuggable false
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -58,6 +63,12 @@ dependencies {
     implementation 'io.ktor:ktor-client-android:2.3.5'
 
     implementation 'io.coil-kt:coil:1.4.0'
+
+    implementation "io.insert-koin:koin-androidx-compose:3.5.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.6.2"
+    implementation 'io.ktor:ktor-serialization-kotlinx-json:2.3.5'
+    implementation 'io.ktor:ktor-client-content-negotiation:2.3.5'
+    implementation 'io.ktor:ktor-client-logging:2.3.5'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
