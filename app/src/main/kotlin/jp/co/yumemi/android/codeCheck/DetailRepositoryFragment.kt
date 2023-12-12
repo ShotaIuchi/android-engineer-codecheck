@@ -12,6 +12,9 @@ import coil.load
 import jp.co.yumemi.android.codeCheck.TopActivity.Companion.lastSearchDate
 import jp.co.yumemi.android.codeCheck.databinding.FragmentDetailRepositoryBinding
 
+/**
+ * GitHubリポジトリ詳細画面
+ */
 class DetailRepositoryFragment : Fragment(R.layout.fragment_detail_repository) {
 
     private val args: DetailRepositoryFragmentArgs by navArgs()

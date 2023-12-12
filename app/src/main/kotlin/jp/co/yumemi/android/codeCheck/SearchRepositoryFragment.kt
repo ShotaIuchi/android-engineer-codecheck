@@ -18,6 +18,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import jp.co.yumemi.android.codeCheck.databinding.FragmentSearchRepositoryBinding
 
+/**
+ * GitHubリポジトリ検索画面
+ */
 class SearchRepositoryFragment : Fragment(R.layout.fragment_search_repository) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

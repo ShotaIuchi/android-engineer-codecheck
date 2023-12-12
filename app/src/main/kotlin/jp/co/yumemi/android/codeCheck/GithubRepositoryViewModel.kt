@@ -21,13 +21,20 @@ import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
 
 /**
- * TwoFragment で使う
+ * GitHubリポジトリデータ用ViewModel
+ * 利用箇所：
+ *  @see SearchRepositoryFragment
+ *  @see DetailRepositoryFragment
  */
 class GithubRepositoryViewModel(
     val context: Context
 ) : ViewModel() {
 
-    // 検索結果
+    /**
+     * {inputText}を入力にGitHubからリポジトリを検索＆取得する
+     * @param inputText 検索文字列
+     * @return GitHubから取得したリポジトリ一覧
+     */
     fun searchResults(inputText: String): LiveData<List<GitHubRepository>> = liveData {
         val client = HttpClient(Android)
 
@@ -42,9 +49,7 @@ class GithubRepositoryViewModel(
 
         val items = mutableListOf<GitHubRepository>()
 
-        /**
-         * アイテムの個数分ループする
-         */
+        // 取得したデータを検索結果リストに詰める
         for (i in 0 until jsonItems.length()) {
             val jsonItem = jsonItems.optJSONObject(i)!!
             val name = jsonItem.optString("full_name")
