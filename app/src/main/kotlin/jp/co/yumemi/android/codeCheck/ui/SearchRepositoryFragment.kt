@@ -11,8 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
 import android.widget.Toast
+import androidx.databinding.BindingAdapter
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
@@ -25,21 +26,27 @@ import jp.co.yumemi.android.codeCheck.R
 import jp.co.yumemi.android.codeCheck.data.models.GitHubRepository
 import jp.co.yumemi.android.codeCheck.data.repository.ResourceRepository
 import jp.co.yumemi.android.codeCheck.databinding.FragmentSearchRepositoryBinding
+import jp.co.yumemi.android.codeCheck.databinding.LayoutItemBinding
 
 /**
  * GitHubリポジトリ検索画面
  */
-class SearchRepositoryFragment : Fragment(R.layout.fragment_search_repository) {
+class SearchRepositoryFragment : Fragment() {
 
     // 本当はDIで依存性注入したいがissueが先なので一旦は無理やり
     private val viewModel: GithubRepositoryViewModel by navGraphViewModels(R.id.nav_graph) {
         GithubRepositoryFactory(ResourceRepository(requireActivity().applicationContext))
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val binding = FragmentSearchRepositoryBinding.bind(view)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val binding: FragmentSearchRepositoryBinding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_search_repository, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
 
         val layoutManager = LinearLayoutManager(requireContext())
         val dividerItemDecoration =
@@ -50,43 +57,36 @@ class SearchRepositoryFragment : Fragment(R.layout.fragment_search_repository) {
             }
         })
 
-        binding.searchInputText
-            .setOnEditorActionListener { editText, action, _ ->
-                if (action == EditorInfo.IME_ACTION_SEARCH) {
-                    // 検索実行時にIMEを閉じる
-                    val imm = requireContext()
-                        .getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(
-                        editText.windowToken,
-                        InputMethodManager.HIDE_NOT_ALWAYS
-                    )
+        viewModel.searchException.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(requireContext(), "取得失敗", Toast.LENGTH_SHORT).show()
+                Log.e("SearchRepositoryFragment", "${error.message}")
+            }
+        }
 
-                    // 入力ワードで検索
-                    editText.text.toString().let {
-                        viewModel.searchResults(it).observe(viewLifecycleOwner) { result ->
-                            result.fold(
-                                onSuccess = { data -> adapter.submitList(data) },
-                                onFailure = { error ->
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "取得失敗",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    Log.e("SearchRepositoryFragment", "${error.message}")
-                                }
-                            )
-                        }
-                    }
-                    return@setOnEditorActionListener true
-                }
+        binding.searchInputText.setOnEditorActionListener { editText, action, _ ->
+            if (EditorInfo.IME_ACTION_SEARCH != action) {
                 return@setOnEditorActionListener false
             }
 
-        binding.recyclerView.also {
-            it.layoutManager = layoutManager
-            it.addItemDecoration(dividerItemDecoration)
-            it.adapter = adapter
+            // 検索実行時にIMEを閉じる
+            val imm = requireContext().getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(editText.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+
+            // 入力ワードで検索
+            editText.text.toString().let {
+                viewModel.search(it)
+            }
+            return@setOnEditorActionListener true
         }
+
+        binding.recyclerView.apply {
+            this.layoutManager = layoutManager
+            this.addItemDecoration(dividerItemDecoration)
+            this.adapter = adapter
+        }
+
+        return binding.root
     }
 
     fun gotoRepositoryFragment(item: GitHubRepository) {
@@ -96,7 +96,7 @@ class SearchRepositoryFragment : Fragment(R.layout.fragment_search_repository) {
     }
 }
 
-val diff_util = object : DiffUtil.ItemCallback<GitHubRepository>() {
+private val diffUtil = object : DiffUtil.ItemCallback<GitHubRepository>() {
     override fun areItemsTheSame(oldItem: GitHubRepository, newItem: GitHubRepository): Boolean {
         return oldItem.name == newItem.name
     }
@@ -106,27 +106,47 @@ val diff_util = object : DiffUtil.ItemCallback<GitHubRepository>() {
     }
 }
 
-class CustomAdapter(
+private class CustomAdapter(
     private val itemClickListener: OnItemClickListener,
-) : ListAdapter<GitHubRepository, CustomAdapter.ViewHolder>(diff_util) {
+) : ListAdapter<GitHubRepository, CustomAdapter.ViewHolder>(diffUtil) {
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view)
+    class ViewHolder(
+        private val binding: LayoutItemBinding,
+        private val itemClickListener: OnItemClickListener
+    ) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: GitHubRepository) {
+            binding.repository = item
+            binding.root.setOnClickListener { itemClickListener.itemClick(item) }
+            binding.executePendingBindings()
+        }
+    }
 
     interface OnItemClickListener {
         fun itemClick(item: GitHubRepository)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.layout_item, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(
+            DataBindingUtil.inflate(
+                LayoutInflater.from(parent.context),
+                R.layout.layout_item,
+                parent,
+                false
+            ),
+            itemClickListener
+        )
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position)
-        holder.itemView.findViewById<TextView>(R.id.repositoryNameView).text = item.name
-        holder.itemView.setOnClickListener {
-            itemClickListener.itemClick(item)
-        }
+        holder.bind(getItem(position))
     }
+}
+
+/**
+ * リストデータバインディング
+ */
+@BindingAdapter("items")
+fun setItems(recyclerView: RecyclerView, items: List<GitHubRepository>?) {
+    (recyclerView.adapter as? CustomAdapter)?.submitList(items)
 }

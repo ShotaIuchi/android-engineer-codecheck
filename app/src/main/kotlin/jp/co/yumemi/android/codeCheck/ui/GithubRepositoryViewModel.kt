@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
 import io.ktor.client.engine.android.Android
@@ -23,6 +23,7 @@ import java.util.Date
 import jp.co.yumemi.android.codeCheck.R
 import jp.co.yumemi.android.codeCheck.data.models.GitHubRepository
 import jp.co.yumemi.android.codeCheck.data.repository.ResourceRepository
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 
 /**
@@ -34,6 +35,23 @@ import org.json.JSONObject
  */
 class GithubRepositoryViewModel(private val resourceRepository: ResourceRepository) : ViewModel() {
 
+    /**
+     * リポジトリリスト
+     */
+    private val _repositoryList = MutableLiveData<List<GitHubRepository>>()
+    val repositoryList: LiveData<List<GitHubRepository>>
+        get() = _repositoryList
+
+    /**
+     * 検索エラー
+     */
+    private val _searchException = MutableLiveData<Exception>()
+    val searchException: LiveData<Exception>
+        get() = _searchException
+
+    /**
+     * 最終検索日時
+     */
     private val _lastSearchDate = MutableLiveData<Date>()
     val lastSearchDate: LiveData<Date>
         get() = _lastSearchDate
@@ -43,7 +61,7 @@ class GithubRepositoryViewModel(private val resourceRepository: ResourceReposito
      * @param inputText 検索文字列
      * @return GitHubから取得したリポジトリ一覧
      */
-    fun searchResults(inputText: String): LiveData<Result<List<GitHubRepository>>> = liveData {
+    fun search(inputText: String) = viewModelScope.launch {
         val client = HttpClient(Android)
 
         val response: HttpResponse = try {
@@ -52,17 +70,17 @@ class GithubRepositoryViewModel(private val resourceRepository: ResourceReposito
                 parameter("q", inputText)
             }
         } catch (e: ClientRequestException) {
-            emit(Result.failure(e))
-            return@liveData
+            _searchException.postValue(e)
+            return@launch
         } catch (e: ServerResponseException) {
-            emit(Result.failure(e))
-            return@liveData
+            _searchException.postValue(e)
+            return@launch
         } catch (e: HttpRequestTimeoutException) {
-            emit(Result.failure(e))
-            return@liveData
+            _searchException.postValue(e)
+            return@launch
         } catch (e: IOException) {
-            emit(Result.failure(e))
-            return@liveData
+            _searchException.postValue(e)
+            return@launch
         }
 
         val jsonBody = JSONObject(response.receive<String>())
@@ -103,7 +121,7 @@ class GithubRepositoryViewModel(private val resourceRepository: ResourceReposito
         _lastSearchDate.postValue(Date())
 
         // 取得失敗時は空リストを登録
-        emit(Result.success(items))
+        _repositoryList.postValue(items)
     }
 }
 
