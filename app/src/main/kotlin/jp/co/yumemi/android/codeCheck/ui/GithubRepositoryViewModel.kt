@@ -11,10 +11,14 @@ import androidx.lifecycle.liveData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
 import io.ktor.client.engine.android.Android
+import io.ktor.client.features.ClientRequestException
+import io.ktor.client.features.HttpRequestTimeoutException
+import io.ktor.client.features.ServerResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
+import io.ktor.utils.io.errors.IOException
 import java.util.Date
 import jp.co.yumemi.android.codeCheck.R
 import jp.co.yumemi.android.codeCheck.data.models.GitHubRepository
@@ -39,12 +43,26 @@ class GithubRepositoryViewModel(private val resourceRepository: ResourceReposito
      * @param inputText 検索文字列
      * @return GitHubから取得したリポジトリ一覧
      */
-    fun searchResults(inputText: String): LiveData<List<GitHubRepository>> = liveData {
+    fun searchResults(inputText: String): LiveData<Result<List<GitHubRepository>>> = liveData {
         val client = HttpClient(Android)
 
-        val response: HttpResponse = client.get("https://api.github.com/search/repositories") {
-            header("Accept", "application/vnd.github.v3+json")
-            parameter("q", inputText)
+        val response: HttpResponse = try {
+            client.get("https://api.github.com/search/repositories") {
+                header("Accept", "application/vnd.github.v3+json")
+                parameter("q", inputText)
+            }
+        } catch (e: ClientRequestException) {
+            emit(Result.failure(e))
+            return@liveData
+        } catch (e: ServerResponseException) {
+            emit(Result.failure(e))
+            return@liveData
+        } catch (e: HttpRequestTimeoutException) {
+            emit(Result.failure(e))
+            return@liveData
+        } catch (e: IOException) {
+            emit(Result.failure(e))
+            return@liveData
         }
 
         val jsonBody = JSONObject(response.receive<String>())
@@ -85,7 +103,7 @@ class GithubRepositoryViewModel(private val resourceRepository: ResourceReposito
         _lastSearchDate.postValue(Date())
 
         // 取得失敗時は空リストを登録
-        emit(items)
+        emit(Result.success(items))
     }
 }
 
