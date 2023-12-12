@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'androidx.navigation.safeargs.kotlin'
+    id "io.gitlab.arturbosch.detekt" version "1.23.1"
 }
 
 android {
@@ -104,4 +105,11 @@ tasks.register("ktlintFormat", JavaExec) {
   // see https://pinterest.github.io/ktlint/install/cli/#command-line-usage for more information
   args "--android", "--reporter=plain", "--color", "--reporter=checkstyle",
           "-F", "src/**/*.kt", "**.kts", "!**/build/**"
+}
+
+// dotkit
+// https://detekt.dev/docs/gettingstarted/gradle
+detekt {
+    toolVersion = "1.23.1"
+    config.setFrom("../config/detekt/detekt.yml")
 }
