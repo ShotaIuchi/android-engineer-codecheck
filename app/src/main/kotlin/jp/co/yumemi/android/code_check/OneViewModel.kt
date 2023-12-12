@@ -6,18 +6,20 @@ package jp.co.yumemi.android.code_check
 import android.content.Context
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.android.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.receive
+import io.ktor.client.engine.android.Android
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.parameter
+import io.ktor.client.statement.HttpResponse
+import java.util.Date
 import jp.co.yumemi.android.code_check.TopActivity.Companion.lastSearchDate
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
-import java.util.*
 
 /**
  * TwoFragment で使う
@@ -31,7 +33,7 @@ class OneViewModel(
         val client = HttpClient(Android)
 
         return@runBlocking GlobalScope.async {
-            val response: HttpResponse = client?.get("https://api.github.com/search/repositories") {
+            val response: HttpResponse = client.get("https://api.github.com/search/repositories") {
                 header("Accept", "application/vnd.github.v3+json")
                 parameter("q", inputText)
             }
