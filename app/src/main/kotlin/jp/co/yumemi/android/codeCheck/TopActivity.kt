@@ -6,22 +6,21 @@ package jp.co.yumemi.android.codeCheck
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import jp.co.yumemi.android.codeCheck.ui.CodeCheckApp
 
 class TopActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Text(text = stringResource(id = R.string.app_name))
+            CodeCheckApp()
         }
     }
 }
 
 @Preview
 @Composable
-fun PreviewHelloWorld() {
-    Text(text = stringResource(id = R.string.app_name))
+private fun Preview() {
+    CodeCheckApp()
 }

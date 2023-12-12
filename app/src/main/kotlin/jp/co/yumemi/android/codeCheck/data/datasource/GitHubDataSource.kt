@@ -1,5 +1,6 @@
 package jp.co.yumemi.android.codeCheck.data.datasource
 
+import jp.co.yumemi.android.codeCheck.data.models.GitHubFileModel
 import jp.co.yumemi.android.codeCheck.data.models.GitHubRepoModel
 
 /**
@@ -13,4 +14,12 @@ interface GitHubDataSource {
      * @return GitHubから取得したリポジトリ一覧
      */
     suspend fun searchRepository(inputText: String): List<GitHubRepoModel>
+
+    /**
+     * ファイル情報を取得
+     * @param fullName リポジトリ名（名前/リポジトリ名）
+     * @param path リポジトリを起点とするパス
+     * @return GitHubから取得したファイル情報
+     */
+    suspend fun getContents(fullName: String, path: String = ""): List<GitHubFileModel>
 }
