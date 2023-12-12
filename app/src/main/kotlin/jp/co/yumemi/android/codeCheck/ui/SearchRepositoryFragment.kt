@@ -3,11 +3,13 @@
  */
 package jp.co.yumemi.android.codeCheck.ui
 
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -48,6 +50,15 @@ class SearchRepositoryFragment : Fragment(R.layout.fragment_search_repository) {
         binding.searchInputText
             .setOnEditorActionListener { editText, action, _ ->
                 if (action == EditorInfo.IME_ACTION_SEARCH) {
+                    // 検索実行時にIMEを閉じる
+                    val imm = requireContext()
+                        .getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(
+                        editText.windowToken,
+                        InputMethodManager.HIDE_NOT_ALWAYS
+                    )
+
+                    // 入力ワードで検索
                     editText.text.toString().let {
                         viewModel.searchResults(it).observe(viewLifecycleOwner) { result ->
                             adapter.submitList(result)
