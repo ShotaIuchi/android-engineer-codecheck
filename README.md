@@ -14,3 +14,12 @@
 ```
 
 ## オプション
+
+### ktlint
+
+- インストール
+    - https://pinterest.github.io/ktlint/
+
+- 利用方法
+    - ./gradlew ktlintCheck
+    - ./gradlew ktlintFormat
