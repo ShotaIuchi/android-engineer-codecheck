@@ -3,12 +3,16 @@
  */
 package jp.co.yumemi.android.codeCheck.ui
 
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
@@ -18,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import jp.co.yumemi.android.codeCheck.R
+import jp.co.yumemi.android.codeCheck.data.models.GitHubRepository
 import jp.co.yumemi.android.codeCheck.data.repository.ResourceRepository
 import jp.co.yumemi.android.codeCheck.databinding.FragmentSearchRepositoryBinding
 
@@ -48,9 +53,28 @@ class SearchRepositoryFragment : Fragment(R.layout.fragment_search_repository) {
         binding.searchInputText
             .setOnEditorActionListener { editText, action, _ ->
                 if (action == EditorInfo.IME_ACTION_SEARCH) {
+                    // 検索実行時にIMEを閉じる
+                    val imm = requireContext()
+                        .getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(
+                        editText.windowToken,
+                        InputMethodManager.HIDE_NOT_ALWAYS
+                    )
+
+                    // 入力ワードで検索
                     editText.text.toString().let {
                         viewModel.searchResults(it).observe(viewLifecycleOwner) { result ->
-                            adapter.submitList(result)
+                            result.fold(
+                                onSuccess = { data -> adapter.submitList(data) },
+                                onFailure = { error ->
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "取得失敗",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    Log.e("SearchRepositoryFragment", "${error.message}")
+                                }
+                            )
                         }
                     }
                     return@setOnEditorActionListener true

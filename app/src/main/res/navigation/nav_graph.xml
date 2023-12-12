@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/apk/res-auto"
-    xmlns:tools2="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/searchRepositoryFragment">
     <fragment
         android:id="@+id/searchRepositoryFragment"
         android:name="jp.co.yumemi.android.codeCheck.ui.SearchRepositoryFragment"
         android:label="fragment_search_repository"
-        tools2:layout="@layout/fragment_search_repository" >
+        tools:layout="@layout/fragment_search_repository" >
         <action
             android:id="@+id/action_searchRepositoryFragment_to_detailRepositoryFragment"
             app:destination="@id/detailRepositoryFragment" />
@@ -19,9 +18,9 @@
         android:id="@+id/detailRepositoryFragment"
         android:name="jp.co.yumemi.android.codeCheck.ui.DetailRepositoryFragment"
         android:label="fragment_detail_repository"
-        tools2:layout="@layout/fragment_detail_repository" >
+        tools:layout="@layout/fragment_detail_repository" >
         <argument
             android:name="item"
-            app:argType="jp.co.yumemi.android.codeCheck.ui.GitHubRepository" />
+            app:argType="jp.co.yumemi.android.codeCheck.data.models.GitHubRepository" />
     </fragment>
 </navigation>

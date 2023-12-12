@@ -3,7 +3,6 @@
  */
 package jp.co.yumemi.android.codeCheck.ui
 
-import android.os.Parcelable
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,14 +11,18 @@ import androidx.lifecycle.liveData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
 import io.ktor.client.engine.android.Android
+import io.ktor.client.features.ClientRequestException
+import io.ktor.client.features.HttpRequestTimeoutException
+import io.ktor.client.features.ServerResponseException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
+import io.ktor.utils.io.errors.IOException
 import java.util.Date
 import jp.co.yumemi.android.codeCheck.R
+import jp.co.yumemi.android.codeCheck.data.models.GitHubRepository
 import jp.co.yumemi.android.codeCheck.data.repository.ResourceRepository
-import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
 
 /**
@@ -40,12 +43,26 @@ class GithubRepositoryViewModel(private val resourceRepository: ResourceReposito
      * @param inputText 検索文字列
      * @return GitHubから取得したリポジトリ一覧
      */
-    fun searchResults(inputText: String): LiveData<List<GitHubRepository>> = liveData {
+    fun searchResults(inputText: String): LiveData<Result<List<GitHubRepository>>> = liveData {
         val client = HttpClient(Android)
 
-        val response: HttpResponse = client.get("https://api.github.com/search/repositories") {
-            header("Accept", "application/vnd.github.v3+json")
-            parameter("q", inputText)
+        val response: HttpResponse = try {
+            client.get("https://api.github.com/search/repositories") {
+                header("Accept", "application/vnd.github.v3+json")
+                parameter("q", inputText)
+            }
+        } catch (e: ClientRequestException) {
+            emit(Result.failure(e))
+            return@liveData
+        } catch (e: ServerResponseException) {
+            emit(Result.failure(e))
+            return@liveData
+        } catch (e: HttpRequestTimeoutException) {
+            emit(Result.failure(e))
+            return@liveData
+        } catch (e: IOException) {
+            emit(Result.failure(e))
+            return@liveData
         }
 
         val jsonBody = JSONObject(response.receive<String>())
@@ -64,7 +81,7 @@ class GithubRepositoryViewModel(private val resourceRepository: ResourceReposito
                 val language = jsonItem.optString("language")
                 val stargazersCount = jsonItem.optLong("stargazers_count")
                 val watchersCount = jsonItem.optLong("watchers_count")
-                val forksCount = jsonItem.optLong("forks_conut")
+                val forksCount = jsonItem.optLong("forks_count")
                 val openIssuesCount = jsonItem.optLong("open_issues_count")
 
                 items.add(
@@ -86,7 +103,7 @@ class GithubRepositoryViewModel(private val resourceRepository: ResourceReposito
         _lastSearchDate.postValue(Date())
 
         // 取得失敗時は空リストを登録
-        emit(items)
+        emit(Result.success(items))
     }
 }
 
@@ -103,14 +120,3 @@ class GithubRepositoryFactory(private val resourceRepository: ResourceRepository
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
-
-@Parcelize
-data class GitHubRepository(
-    val name: String,
-    val ownerIconUrl: String,
-    val language: String,
-    val stargazersCount: Long,
-    val watchersCount: Long,
-    val forksCount: Long,
-    val openIssuesCount: Long,
-) : Parcelable
