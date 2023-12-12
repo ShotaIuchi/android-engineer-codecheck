@@ -3,6 +3,25 @@
  */
 package jp.co.yumemi.android.codeCheck
 
-import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 
-class TopActivity : AppCompatActivity(R.layout.activity_top)
+class TopActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            Text(text = stringResource(id = R.string.app_name))
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewHelloWorld() {
+    Text(text = stringResource(id = R.string.app_name))
+}
