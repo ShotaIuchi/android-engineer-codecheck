@@ -94,6 +94,20 @@ jobs:
         if-no-files-found: warn
         retention-days: 14
 
+    - name: Run Detekt
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: detekt
+        continue-on-error: true
+
+    - name: Upload Detekt Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: detekt-results
+        path: '**/build/reports/detekt/**/*'
+        if-no-files-found: warn
+        retention-days: 14
+
     ## deploy
     # https://github.com/tj-actions/changed-files
     - name: Get changed files
