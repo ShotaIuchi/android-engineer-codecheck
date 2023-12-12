@@ -1,15 +1,17 @@
 /*
  * Copyright © 2021 YUMEMI Inc. All rights reserved.
  */
-package jp.co.yumemi.android.codeCheck
+package jp.co.yumemi.android.codeCheck.ui
 
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
+import androidx.navigation.navGraphViewModels
 import coil.load
-import jp.co.yumemi.android.codeCheck.TopActivity.Companion.lastSearchDate
+import jp.co.yumemi.android.codeCheck.R
+import jp.co.yumemi.android.codeCheck.data.repository.ResourceRepository
 import jp.co.yumemi.android.codeCheck.databinding.FragmentDetailRepositoryBinding
 
 /**
@@ -19,10 +21,17 @@ class DetailRepositoryFragment : Fragment(R.layout.fragment_detail_repository) {
 
     private val args: DetailRepositoryFragmentArgs by navArgs()
 
+    // 本当はDIで依存性注入したいがissueが先なので一旦は無理やり
+    private val viewModel: GithubRepositoryViewModel by navGraphViewModels(R.id.nav_graph) {
+        GithubRepositoryFactory(ResourceRepository(requireActivity().applicationContext))
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.d("検索した日時", lastSearchDate.toString())
+        viewModel.lastSearchDate.observe(viewLifecycleOwner) { lastSearchDate ->
+            Log.d("検索した日時", lastSearchDate.toString())
+        }
 
         FragmentDetailRepositoryBinding.bind(view).let { binding ->
             val item = args.item

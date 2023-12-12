@@ -1,12 +1,13 @@
 /*
  * Copyright © 2021 YUMEMI Inc. All rights reserved.
  */
-package jp.co.yumemi.android.codeCheck
+package jp.co.yumemi.android.codeCheck.ui
 
-import android.content.Context
 import android.os.Parcelable
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import io.ktor.client.HttpClient
 import io.ktor.client.call.receive
@@ -16,7 +17,8 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
 import java.util.Date
-import jp.co.yumemi.android.codeCheck.TopActivity.Companion.lastSearchDate
+import jp.co.yumemi.android.codeCheck.R
+import jp.co.yumemi.android.codeCheck.data.repository.ResourceRepository
 import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
 
@@ -25,10 +27,13 @@ import org.json.JSONObject
  * 利用箇所：
  *  @see SearchRepositoryFragment
  *  @see DetailRepositoryFragment
+ *  @param resourceRepository リソース用リポジトリ
  */
-class GithubRepositoryViewModel(
-    val context: Context
-) : ViewModel() {
+class GithubRepositoryViewModel(private val resourceRepository: ResourceRepository) : ViewModel() {
+
+    private val _lastSearchDate = MutableLiveData<Date>()
+    val lastSearchDate: LiveData<Date>
+        get() = _lastSearchDate
 
     /**
      * {inputText}を入力にGitHubからリポジトリを検索＆取得する
@@ -66,7 +71,8 @@ class GithubRepositoryViewModel(
                     GitHubRepository(
                         name = name,
                         ownerIconUrl = ownerIconUrl,
-                        language = context.getString(R.string.written_language, language),
+                        language = resourceRepository
+                            .getString(R.string.written_language, language),
                         stargazersCount = stargazersCount,
                         watchersCount = watchersCount,
                         forksCount = forksCount,
@@ -77,10 +83,24 @@ class GithubRepositoryViewModel(
         }
 
         // 取得失敗時も日時更新
-        lastSearchDate = Date()
+        _lastSearchDate.postValue(Date())
 
         // 取得失敗時は空リストを登録
         emit(items)
+    }
+}
+
+/**
+ * GitHubリポジトリデータViewModel用Factory
+ */
+class GithubRepositoryFactory(private val resourceRepository: ResourceRepository) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(GithubRepositoryViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return GithubRepositoryViewModel(resourceRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
