@@ -1,7 +1,7 @@
 /*
  * Copyright © 2021 YUMEMI Inc. All rights reserved.
  */
-package jp.co.yumemi.android.code_check
+package jp.co.yumemi.android.codeCheck
 
 import android.content.Context
 import android.os.Parcelable
@@ -16,7 +16,7 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.HttpResponse
 import java.util.Date
-import jp.co.yumemi.android.code_check.TopActivity.Companion.lastSearchDate
+import jp.co.yumemi.android.codeCheck.TopActivity.Companion.lastSearchDate
 import kotlinx.parcelize.Parcelize
 import org.json.JSONObject
 
@@ -28,7 +28,7 @@ class OneViewModel(
 ) : ViewModel() {
 
     // 検索結果
-    fun searchResults(inputText: String): LiveData<List<item>> = liveData {
+    fun searchResults(inputText: String): LiveData<List<Item>> = liveData {
         val client = HttpClient(Android)
 
         val response: HttpResponse = client.get("https://api.github.com/search/repositories") {
@@ -40,7 +40,7 @@ class OneViewModel(
 
         val jsonItems = jsonBody.optJSONArray("items")!!
 
-        val items = mutableListOf<item>()
+        val items = mutableListOf<Item>()
 
         /**
          * アイテムの個数分ループする
@@ -56,7 +56,7 @@ class OneViewModel(
             val openIssuesCount = jsonItem.optLong("open_issues_count")
 
             items.add(
-                item(
+                Item(
                     name = name,
                     ownerIconUrl = ownerIconUrl,
                     language = context.getString(R.string.written_language, language),
@@ -74,7 +74,7 @@ class OneViewModel(
 }
 
 @Parcelize
-data class item(
+data class Item(
     val name: String,
     val ownerIconUrl: String,
     val language: String,
