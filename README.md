@@ -23,3 +23,11 @@
 - 利用方法
     - ./gradlew ktlintCheck
     - ./gradlew ktlintFormat
+
+### detekt
+
+- インストール
+  - https://detekt.dev/docs/gettingstarted/cli
+
+- 利用方法
+  - ./gradlew detekt
