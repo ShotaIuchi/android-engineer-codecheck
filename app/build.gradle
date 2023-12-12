@@ -76,8 +76,6 @@ dependencies {
     implementation 'io.ktor:ktor-client-content-negotiation:2.3.5'
     implementation 'io.ktor:ktor-client-logging:2.3.5'
 
-    implementation 'androidx.test.espresso:espresso-idling-resource:3.5.1'
-
     testImplementation 'junit:junit:4.13.2'
     testImplementation "androidx.arch.core:core-testing:2.2.0"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3"
@@ -91,7 +89,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
-//    androidTestImplementation 'io.ktor:ktor-client-mock:2.3.5'
 }
 
 // kotlin-gradle-plugin must be applied for configuration below to work
