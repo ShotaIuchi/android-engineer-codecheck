@@ -45,35 +45,41 @@ class GithubRepositoryViewModel(
 
         val jsonBody = JSONObject(response.receive<String>())
 
-        val jsonItems = jsonBody.optJSONArray("items")!!
+        val jsonItems = jsonBody.optJSONArray("items")
 
         val items = mutableListOf<GitHubRepository>()
 
         // 取得したデータを検索結果リストに詰める
-        for (i in 0 until jsonItems.length()) {
-            val jsonItem = jsonItems.optJSONObject(i)!!
-            val name = jsonItem.optString("full_name")
-            val ownerIconUrl = jsonItem.optJSONObject("owner")!!.optString("avatar_url")
-            val language = jsonItem.optString("language")
-            val stargazersCount = jsonItem.optLong("stargazers_count")
-            val watchersCount = jsonItem.optLong("watchers_count")
-            val forksCount = jsonItem.optLong("forks_conut")
-            val openIssuesCount = jsonItem.optLong("open_issues_count")
+        jsonItems?.let { jsonArray ->
+            for (i in 0 until jsonArray.length()) {
+                val jsonItem = jsonArray.optJSONObject(i)
 
-            items.add(
-                GitHubRepository(
-                    name = name,
-                    ownerIconUrl = ownerIconUrl,
-                    language = context.getString(R.string.written_language, language),
-                    stargazersCount = stargazersCount,
-                    watchersCount = watchersCount,
-                    forksCount = forksCount,
-                    openIssuesCount = openIssuesCount
+                val name = jsonItem.optString("full_name")
+                val ownerIconUrl = jsonItem.optJSONObject("owner")?.optString("avatar_url") ?: ""
+                val language = jsonItem.optString("language")
+                val stargazersCount = jsonItem.optLong("stargazers_count")
+                val watchersCount = jsonItem.optLong("watchers_count")
+                val forksCount = jsonItem.optLong("forks_conut")
+                val openIssuesCount = jsonItem.optLong("open_issues_count")
+
+                items.add(
+                    GitHubRepository(
+                        name = name,
+                        ownerIconUrl = ownerIconUrl,
+                        language = context.getString(R.string.written_language, language),
+                        stargazersCount = stargazersCount,
+                        watchersCount = watchersCount,
+                        forksCount = forksCount,
+                        openIssuesCount = openIssuesCount
+                    )
                 )
-            )
+            }
         }
 
+        // 取得失敗時も日時更新
         lastSearchDate = Date()
+
+        // 取得失敗時は空リストを登録
         emit(items)
     }
 }
