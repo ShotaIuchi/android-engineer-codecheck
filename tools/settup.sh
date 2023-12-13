@@ -16,6 +16,9 @@ git config core.commentChar ';'
 # git config core.fileMode false
 # git config core.symlinks true
 
+## 以下はずるい設定 ##
+# git config alias.picktoday '!f() { git cherry-pick ${1}; git commit --amend --no-edit --date=$(date --iso-8601=seconds); git rebase HEAD~ --committer-date-is-author-date; }; f'
+
 ### JAVA_HOME ###
 # - GLOBALで環境設定していない &
 # - gradlをコマンドラインから利用するなど
