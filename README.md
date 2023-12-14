@@ -1,5 +1,9 @@
 [YUMEMI inc.](README_yumemi-inc.md)
 
+# 最終版
+
+<img src="docs/app2.gif" width="320">
+
 # 環境設定
 
 ## 必須項目
